@@ -445,7 +445,7 @@
         const playerWrapper = document.getElementById('playerWrapper');
         
         // --- YOUR LINK FIXED HERE ---
-        const videoSource = "https://next-api.samfygros.com/pw-multi-stream/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwb2wiOiI_VVJMUHJlZml4PWFIUjBjSE02THk5elpXTXRjSEp2WkMxdFpXUnBZV05rYmk1d2R5NXNhWFpsTDJJM1ltSTFaRGM1TFRFM01XUXROR0ppWlMwNE1tSXdMV1JoWVRVd00yTTJNRFE0WVEmRXhwaXJlcz0xNzc2NTY5NjE2JktleU5hbWU9cHctcHJvZC1rZXkmU2lnbmF0dXJlPUlLVGpKVlc5SEU4bllXZmxjTGJLaDBhVDkzTjBXVnhPM0JTRVJpVmlINXFJLXZjOVBHV0JkcWJqM0tyOW5GVHd3bVQ2OHJnOENjRm83Rkt6cGhUU0NnIiwidHlwZSI6ImxpdmUiLCJ2aWRlb191cmwiOiJodHRwczpcL1wvc2VjLXByb2QtbWVkaWFjZG4ucHcubGl2ZVwvYjdiYjVkNzktMTcxZC00YmJlLTgyYjAtZGFhNTAzYzYwNDhhXC9tYXN0ZXIubXBkIiwiZXhwIjoxNzc2NTY2MDE3LCJpYXQiOjE3NzY1NTUyMTd9.9YPr0kjeNk5c8kKuPFuF1ozFyXwjg3pDimjeiJijkjw/master.m3u8";
+        const videoSource = "https://binding-brena-saood-432b4631.koyeb.app/stream/24?hash=71a552";
 
         const playBtn = document.getElementById('playBtn');
         const rewindBtn = document.getElementById('rewindBtn');
@@ -528,7 +528,7 @@
 
         document.addEventListener('contextmenu', (e) => e.preventDefault());
 
-        // --- ALWAYS ATTACH HOVER EVENTS TO FIX LAPTOP TOUCH-SCREEN ISSUES ---
+        // --- HOVER LOGIC FIXED FOR LAPTOPS ---
         playerWrapper.addEventListener('mousemove', showControls);
         playerWrapper.addEventListener('mouseenter', showControls);
         playerWrapper.addEventListener('mouseleave', () => {
@@ -539,10 +539,8 @@
             }
         });
 
-        // --- SMART HLS & FALLBACK LOGIC ---
-        const isM3U8 = videoSource.toLowerCase().includes('.m3u8');
-
-        if (isM3U8 && Hls.isSupported()) {
+        // --- SMART HLS & FALLBACK LOGIC FIX (.ts Support) ---
+        if (Hls.isSupported()) {
             const hls = new Hls({ maxMaxBufferLength: 60, maxBufferSize: 60 * 1000 * 1000 });
             hls.loadSource(videoSource);
             hls.attachMedia(video);
@@ -551,9 +549,10 @@
                     video.src = videoSource; // Fallback directly if HLS fails
                 }
             });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoSource;
         } else {
             video.src = videoSource;
-            video.load(); // Forces instant load for MP4s to prevent play delay
         }
 
         video.addEventListener('play', () => playerWrapper.classList.add('has-started'));
@@ -621,13 +620,13 @@
             return Math.max(0, Math.min((clientX - rect.left) / rect.width, 1));
         }
 
-        // Always attach hover preview events to fix laptop touch-screen issues
         progressContainer.addEventListener('mousemove', (e) => {
             if (!isDraggingTimeline) {
                 seekPreviewBar.style.width = (getTimelinePos(e) * 100) + '%';
                 seekPreviewBar.classList.add('active');
             }
         });
+        
         progressContainer.addEventListener('mouseleave', () => { 
             if (!isDraggingTimeline) seekPreviewBar.classList.remove('active'); 
         });
